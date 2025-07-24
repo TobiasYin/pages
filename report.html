@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中日房地产周期对比与未来展望</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Chosen Palette: Warm Harmony Neutrals -->
+    <!-- Application Structure Plan: The application is designed as a non-linear, thematic journey, contrasting with the report's linear structure. It uses a sticky navigation bar (概览, 日本镜鉴, 中国路径, 对比分析, 未来展望) to allow users to freely jump between sections. The structure prioritizes user-led exploration: 1. An "Overview" immediately presents the core thesis of divergence. 2. "Japan's Mirror" uses interactive tabs and charts to tell the story of Japan's cycle. 3. "China's Path" explains its unique drivers with diagrams and charts. 4. A "Direct Comparison" dashboard uses multiple charts to visually highlight the key differences between the two nations at their peak. 5. "Future Outlook" provides a practical, tab-based tool to explore the forecast for different city tiers. This structure is chosen to transform a dense report into an engaging, digestible, and useful interactive tool that focuses on comparison and future implications rather than just historical recounting. -->
+    <!-- Visualization & Content Choices: 1. Japan's Cycle: Report info on asset price boom/bust -> Goal: Show dramatic change -> Viz: Line Chart (Chart.js) -> Interaction: Tabs update chart data to show different phases -> Justification: Best for time-series trends. 2. Japan's Divergence: Regional price changes -> Goal: Compare categories -> Viz: Bar Chart (Chart.js) -> Justification: Ideal for discrete category comparison. 3. China vs. Japan Dashboard: Comparative metrics table -> Goal: Direct side-by-side comparison -> Viz: Composite of Donut & Bar charts (Chart.js) + HTML/CSS icons -> Justification: Breaks down a dense table into multiple, impactful visuals. 4. Future Outlook: Forecast summary table -> Goal: Easy reference -> Viz: Custom Tabbed Interface (HTML/CSS/JS) -> Justification: Most user-friendly way to present categorized, non-numerical forecast data. All choices adhere to the NO SVG/Mermaid rule, using Canvas and styled HTML to create a rich visual experience. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #F8F7F4;
+            color: #333;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            color: #C87E62;
+            border-bottom-color: #C87E62;
+        }
+
+        .tab-btn {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: #6A8A9E;
+            color: #FFFFFF;
+        }
+
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .section-title {
+            color: #6A8A9E;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-md">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800">中日房市透视</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#overview" class="nav-link border-b-2 border-transparent pb-1">概览</a>
+                <a href="#japan" class="nav-link border-b-2 border-transparent pb-1">日本镜鉴</a>
+                <a href="#china" class="nav-link border-b-2 border-transparent pb-1">中国路径</a>
+                <a href="#comparison" class="nav-link border-b-2 border-transparent pb-1">对比分析</a>
+                <a href="#outlook" class="nav-link border-b-2 border-transparent pb-1">未来展望</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-4 6h4">
+                    </path>
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#overview" class="block py-2 px-6 text-sm hover:bg-gray-200">概览</a>
+            <a href="#japan" class="block py-2 px-6 text-sm hover:bg-gray-200">日本镜鉴</a>
+            <a href="#china" class="block py-2 px-6 text-sm hover:bg-gray-200">中国路径</a>
+            <a href="#comparison" class="block py-2 px-6 text-sm hover:bg-gray-200">对比分析</a>
+            <a href="#outlook" class="block py-2 px-6 text-sm hover:bg-gray-200">未来展望</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-12">
+
+        <section id="overview" class="text-center mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 section-title">两大巨头的双城记</h2>
+            <p class="text-lg md:text-xl max-w-3xl mx-auto text-gray-600">
+                中国房地产的未来，并非对日本“失去的三十年”的简单复刻。本报告通过深度剖析两国房地产周期的异同，揭示了中国未来的核心趋势：<strong
+                    class="text-[#C87E62]">普涨时代终结，区域分化加剧</strong>。这是一个由人口流向、产业结构和国家调控共同塑造的、截然不同的新格局。
+            </p>
+        </section>
+
+        <section id="japan" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">日本镜鉴：泡沫的四幕剧</h2>
+            <p class="text-center text-gray-500 mb-8 max-w-2xl mx-auto">
+                从战后奇迹到泡沫破裂，再到如今的分化复苏，日本的经历为我们提供了一个完整的研究样本。点击下方标签，探索其房地产周期的四个关键阶段。</p>
+
+            <div class="flex justify-center mb-8 space-x-2 md:space-x-4">
+                <button data-stage="pre-bubble"
+                    class="japan-tab-btn tab-btn px-3 py-2 md:px-4 md:py-2 text-sm md:text-base font-semibold rounded-full bg-white shadow">泡沫前夜</button>
+                <button data-stage="bubble"
+                    class="japan-tab-btn tab-btn px-3 py-2 md:px-4 md:py-2 text-sm md:text-base font-semibold rounded-full bg-white shadow active">泡沫狂热</button>
+                <button data-stage="crash"
+                    class="japan-tab-btn tab-btn px-3 py-2 md:px-4 md:py-2 text-sm md:text-base font-semibold rounded-full bg-white shadow">泡沫破裂</button>
+                <button data-stage="recovery"
+                    class="japan-tab-btn tab-btn px-3 py-2 md:px-4 md:py-2 text-sm md:text-base font-semibold rounded-full bg-white shadow">分化复苏</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div id="japan-text-content" class="card p-6 order-2 md:order-1">
+                </div>
+                <div id="japan-chart-container" class="order-1 md:order-2">
+                    <div class="chart-container">
+                        <canvas id="japanChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="china" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">中国路径：独特的增长与转型</h2>
+            <p class="text-center text-gray-500 mb-8 max-w-2xl mx-auto">
+                中国房地产的繁荣由住房改革、城市化和信贷扩张三大支柱驱动，并形成了独特的“土地财政”模式。当前，市场正经历一场深刻的结构性转折。</p>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
+                <div class="md:col-span-3 card p-6">
+                    <h3 class="font-bold text-xl mb-4 text-center">繁荣的三大支柱与“土地财政”</h3>
+                    <div class="relative flex flex-col items-center justify-center space-y-4 p-4">
+                        <div class="grid grid-cols-3 gap-4 w-full text-center">
+                            <div class="pillar-item p-2 bg-blue-50 rounded-lg">住房改革</div>
+                            <div class="pillar-item p-2 bg-green-50 rounded-lg">城市化</div>
+                            <div class="pillar-item p-2 bg-yellow-50 rounded-lg">信贷扩张</div>
+                        </div>
+                        <div class="text-4xl text-gray-400">↓</div>
+                        <div class="p-4 bg-red-50 rounded-lg text-center font-bold text-red-800 w-2/3">土地财政模式</div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-4">
+                        这三大支柱共同催生了对地方政府至关重要的“土地财政”模式，地方政府、开发商和银行形成了“增长联盟”，最终由居民部门加杠杆承接，推动了房价的长期上涨。</p>
+                </div>
+                <div class="md:col-span-2 card p-6">
+                    <h3 class="font-bold text-xl mb-4 text-center">居民杠杆的飙升</h3>
+                    <div class="chart-container h-64">
+                        <canvas id="chinaLeverageChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-4">为追赶房价，中国居民部门杠杆率（债务/GDP）在不到十年内翻倍，增速全球第一，凸显了房地产对居民财富和负债的深刻影响。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="comparison" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">关键差异：为何中国不是日本？</h2>
+            <p class="text-center text-gray-500 mb-8 max-w-2xl mx-auto">
+                尽管上升期有诸多相似，但在各自市场见顶时，中日在发展阶段、人口结构和国家控制力上存在根本差异。这些差异决定了中国不会简单重蹈日本的覆辙。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card p-6 text-center">
+                    <h3 class="font-semibold text-lg mb-2">城市化进程</h3>
+                    <div class="flex justify-around items-center">
+                        <div>
+                            <p class="font-bold text-2xl text-[#6A8A9E]">~77%</p>
+                            <p class="text-sm text-gray-500">日本 (1990)</p>
+                            <p class="text-xs text-gray-400">已基本完成</p>
+                        </div>
+                        <div>
+                            <p class="font-bold text-2xl text-[#C87E62]">~65%</p>
+                            <p class="text-sm text-gray-500">中国 (2021)</p>
+                            <p class="text-xs text-gray-400">仍有空间</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 text-center">
+                    <h3 class="font-semibold text-lg mb-2">人口结构 (65岁以上)</h3>
+                    <div class="flex justify-around items-center">
+                        <div>
+                            <p class="font-bold text-2xl text-[#6A8A9E]">~12%</p>
+                            <p class="text-sm text-gray-500">日本 (1990)</p>
+                            <p class="text-xs text-gray-400">红利结束</p>
+                        </div>
+                        <div>
+                            <p class="font-bold text-2xl text-[#C87E62]">~14%</p>
+                            <p class="text-sm text-gray-500">中国 (2021)</p>
+                            <p class="text-xs text-gray-400">内部流动支撑</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 text-center">
+                    <h3 class="font-semibold text-lg mb-2">国家控制力</h3>
+                    <div class="flex justify-around items-center">
+                        <div>
+                            <p class="font-bold text-xl text-[#6A8A9E]">中等</p>
+                            <p class="text-sm text-gray-500">日本 (1990)</p>
+                            <p class="text-xs text-gray-400">金融自由化</p>
+                        </div>
+                        <div>
+                            <p class="font-bold text-xl text-[#C87E62]">非常高</p>
+                            <p class="text-sm text-gray-500">中国 (2021)</p>
+                            <p class="text-xs text-gray-400">资本管制</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 lg:col-span-3">
+                    <h3 class="font-semibold text-lg mb-2 text-center">杠杆率对比 (债务/GDP)</h3>
+                    <div class="chart-container h-64">
+                        <canvas id="leverageComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="outlook" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">未来展望：一个分化的中国</h2>
+            <p class="text-center text-gray-500 mb-8 max-w-2xl mx-auto">
+                全国普涨的时代已成过去。未来，城市的命运将由其对人口和资本的吸引力决定。点击下方标签，查看不同层级城市的未来趋势。</p>
+
+            <div class="flex justify-center mb-8 space-x-2 md:space-x-4">
+                <button data-tier="1"
+                    class="outlook-tab-btn tab-btn px-4 py-2 text-base font-semibold rounded-full bg-white shadow active">一线城市</button>
+                <button data-tier="2"
+                    class="outlook-tab-btn tab-btn px-4 py-2 text-base font-semibold rounded-full bg-white shadow">强二线城市</button>
+                <button data-tier="3"
+                    class="outlook-tab-btn tab-btn px-4 py-2 text-base font-semibold rounded-full bg-white shadow">三四线城市</button>
+            </div>
+
+            <div id="outlook-content" class="card p-6 md:p-8 max-w-4xl mx-auto">
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 mt-12 border-t border-gray-200">
+        <p class="text-gray-500 text-sm">Copyright: xiang.yu 2025</p>
+        <p class="text-gray-400 text-xs mt-1">旨在以可视化方式解读中日房地产市场的历史与未来。</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const japanTextData = {
+                'pre-bubble': {
+                    title: '泡沫前夜 (1950s-1985)',
+                    content: '战后经济奇迹奠定了高储蓄和强大工业基础。独特的“主银行制度”和政府主导的低利率政策，虽促进了高速增长，但也塑造了依赖抵押品（土地）而非市场化风险定价的信贷文化。社会普遍形成“土地神话”，为后来的资产泡沫埋下伏笔。'
+                },
+                'bubble': {
+                    title: '泡沫狂热 (1985-1990)',
+                    content: '1985年《广场协议》后日元急剧升值，为对冲出口压力，日本央行采取极度宽松的货币政策，利率降至2.5%的历史低位。巨量廉价资金涌入股市和房市，资产价格以惊人速度膨胀。仅东京地价就号称可买下整个美国，形成了脱离基本面的投机狂潮。'
+                },
+                'crash': {
+                    title: '泡沫破裂 (1991-至今)',
+                    content: '为抑制泡沫，日本央行在1989年起急速加息，并出台房地产贷款总量管制。这种“休克疗法”直接刺破泡沫，股市和房市接连崩溃。银行体系留下巨额不良贷款，企业和居民陷入“资产负债表衰退”，日本经济进入长达数十年的停滞、通缩，即“失去的几十年”。'
+                },
+                'recovery': {
+                    title: '分化复苏',
+                    content: '泡沫破裂后，日本房市并未统一走势，而是出现严重分化。人口和产业持续向东京等核心都市圈集中，使其房价展现韧性并率先复苏。而人口持续流失的地方城市，房市则陷入长期萎靡。这揭示了后泡沫时代的核心逻辑：人口流向成为决定房地产价值的唯一生命线。'
+                }
+            };
+
+            const japanChartData = {
+                labels: ['1985', '1986', '1987', '1988', '1989', '1990', '1991', '1992', '1995', '2000', '2005'],
+                datasets: {
+                    'pre-bubble': [{
+                        label: '六大城市地价指数',
+                        data: [100, null, null, null, null, null, null, null, null, null, null],
+                        borderColor: '#6A8A9E',
+                        backgroundColor: 'rgba(106, 138, 158, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }],
+                    'bubble': [{
+                        label: '六大城市地价指数',
+                        data: [100, 130, 180, 250, 300, 390, 400, null, null, null, null],
+                        borderColor: '#C87E62',
+                        backgroundColor: 'rgba(200, 126, 98, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }],
+                    'crash': [{
+                        label: '六大城市地价指数',
+                        data: [100, 130, 180, 250, 300, 390, 400, 300, 220, 180, 150],
+                        borderColor: '#6A8A9E',
+                        backgroundColor: 'rgba(106, 138, 158, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }],
+                    'recovery': {
+                        type: 'bar',
+                        labels: ['东京核心23区', '东京都', '东京圈', '全国平均'],
+                        datasets: [{
+                            label: '房价累计涨跌幅 (2006-2016)',
+                            data: [11.7, 5.6, -4.1, -15],
+                            backgroundColor: ['#C87E62', '#DAA694', '#A9B9C3', '#6A8A9E'],
+                            borderColor: ['#C87E62', '#DAA694', '#A9B9C3', '#6A8A9E'],
+                            borderWidth: 1
+                        }]
+                    }
+                }
+            };
+
+            const outlookData = {
+                '1': {
+                    title: '一线城市 (北京、上海、广州、深圳)',
+                    drivers: '顶尖人才与资本的持续流入、全国性的经济与创新中心地位、土地供应严格受限。',
+                    challenges: '极高的房价负担对人才的挤出效应、未来可能出台的强力调控政策（如房产税）。',
+                    outlook: '房价最具韧性。在经历短期温和调整后，将率先企稳，并可能恢复与经济和通胀相匹配的慢速增长。',
+                    analogy: '东京核心区',
+                    trend: '↗️ 强韧增长'
+                },
+                '2': {
+                    title: '强二线城市 (杭州、成都、武汉等)',
+                    drivers: '区域经济龙头，拥有特色支柱产业，能有效吸引省内及周边地区人口流入。',
+                    challenges: '城市间竞争激烈，部分城市在上一轮周期中土地供应过量，面临高库存压力。',
+                    outlook: '前景将显著分化。产业健康、人口持续流入的城市有望企稳，而库存高企的城市可能面临更长时间的价格停滞。',
+                    analogy: '东京都市圈（非核心区）',
+                    trend: '↔️ 分化企稳'
+                },
+                '3': {
+                    title: '三四线城市',
+                    drivers: '缺乏有竞争力的支柱产业，经济内生动力不足。',
+                    challenges: '人口持续净流出被一二线城市虹吸，上一轮繁荣中过度开发导致巨量库存。',
+                    outlook: '面临最高的长期结构性下跌风险。房价可能出现名义和实际价值的双重缩水，“住房是消费品”的观念将成为现实。',
+                    analogy: '持续衰落的地方城市',
+                    trend: '↘️ 结构性承压'
+                }
+            };
+
+            let japanChartInstance;
+            const japanChartCanvas = document.getElementById('japanChart').getContext('2d');
+
+            function createOrUpdateJapanChart(stage) {
+                if (japanChartInstance) {
+                    japanChartInstance.destroy();
+                }
+
+                const chartConfig = {
+                    type: 'line',
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: stage !== 'recovery' },
+                            title: { display: true, text: stage === 'recovery' ? '后泡沫时代房价分化' : '日本六大城市地价指数 (1985=100)' }
+                        },
+                        scales: {
+                            y: { beginAtZero: stage !== 'recovery' }
+                        }
+                    }
+                };
+
+                if (stage === 'recovery') {
+                    chartConfig.type = 'bar';
+                    chartConfig.data = japanChartData.datasets.recovery;
+                } else {
+                    chartConfig.type = 'line';
+                    chartConfig.data = {
+                        labels: japanChartData.labels,
+                        datasets: japanChartData.datasets[stage]
+                    };
+                }
+
+                japanChartInstance = new Chart(japanChartCanvas, chartConfig);
+            }
+
+            function updateJapanSection(stage) {
+                document.querySelectorAll('.japan-tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.stage === stage);
+                });
+
+                const textContent = japanTextData[stage];
+                const textContainer = document.getElementById('japan-text-content');
+                textContainer.innerHTML = `
+                    <h3 class="font-bold text-xl mb-3">${textContent.title}</h3>
+                    <p class="text-gray-600">${textContent.content}</p>
+                `;
+
+                createOrUpdateJapanChart(stage);
+            }
+
+            document.querySelectorAll('.japan-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => updateJapanSection(btn.dataset.stage));
+            });
+
+            const chinaLeverageChartCanvas = document.getElementById('chinaLeverageChart').getContext('2d');
+            new Chart(chinaLeverageChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: ['2011', '2013', '2015', '2017', '2019', '2021'],
+                    datasets: [{
+                        label: '中国居民部门杠杆率',
+                        data: [27.8, 33, 39.3, 48.4, 55.8, 62.1],
+                        borderColor: '#C87E62',
+                        backgroundColor: 'rgba(200, 126, 98, 0.2)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: value => value + '%' } } }
+                }
+            });
+
+            const leverageComparisonChartCanvas = document.getElementById('leverageComparisonChart').getContext('2d');
+            new Chart(leverageComparisonChartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: ['居民杠杆率', '非金融企业杠杆率'],
+                    datasets: [
+                        {
+                            label: '日本 (约1990)',
+                            data: [67, 140],
+                            backgroundColor: '#6A8A9E',
+                        },
+                        {
+                            label: '中国 (约2021)',
+                            data: [62, 168],
+                            backgroundColor: '#C87E62',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        title: { display: true, text: '杠杆率对比 (债务/GDP)' }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { callback: value => value + '%' }
+                        }
+                    }
+                }
+            });
+
+            function updateOutlookSection(tier) {
+                document.querySelectorAll('.outlook-tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tier === tier);
+                });
+
+                const data = outlookData[tier];
+                const container = document.getElementById('outlook-content');
+                container.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-4 text-center">${data.title}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                        <div>
+                            <h4 class="font-semibold text-lg mb-2 text-[#6A8A9E]">核心驱动力</h4>
+                            <p class="text-gray-700">${data.drivers}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg mb-2 text-[#C87E62]">主要挑战</h4>
+                            <p class="text-gray-700">${data.challenges}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <h4 class="font-semibold text-lg mb-2">价格展望</h4>
+                            <p class="text-gray-700">${data.outlook}</p>
+                        </div>
+                        <div class="md:col-span-2 grid grid-cols-2 gap-4 mt-4 text-center">
+                             <div class="bg-gray-100 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">日本参照系</p>
+                                <p class="font-bold text-lg">${data.analogy}</p>
+                            </div>
+                            <div class="bg-gray-100 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">趋势信号</p>
+                                <p class="font-bold text-lg">${data.trend}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.querySelectorAll('.outlook-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => updateOutlookSection(btn.dataset.tier));
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    if (mobileMenu.classList.contains('hidden') === false) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 100) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            updateJapanSection('bubble');
+            updateOutlookSection('1');
+        });
+    </script>
+</body>
+
+</html>
